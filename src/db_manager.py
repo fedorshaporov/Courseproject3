@@ -6,21 +6,13 @@ class DBManager:
     """Класс для работы с базой данных PostgreSQL."""
 
     def __init__(self, db_config: Dict[str, str]):
-        """
-        Инициализирует соединение с базой данных.
-
-        :param db_config: Словарь с параметрами подключения к БД.
-        """
+        """Инициализирует соединение с базой данных."""
         self.connection = psycopg2.connect(**db_config)
 
     def create_database(self, db_name: str) -> None:
-        """
-        Создает базу данных, если она не существует.
-
-        :param db_name: Название базы данных.
-        """
+        """Создает базу данных, если она не существует."""
         with self.connection.cursor() as cursor:
-            cursor.execute(sql.SQL("SELECT 1 FROM pg_catalog.pg_database WHERE datname = {}").format(sql.Identifier(db_name)))
+            cursor.execute(sql.SQL("SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s").format(sql.Identifier(db_name)), [db_name])
             exists = cursor.fetchone()
             if not exists:
                 cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
@@ -51,6 +43,22 @@ class DBManager:
             """)
             print("Tables created or already exist.")
         self.connection.commit()
+
+    def insert_employer(self, hh_id: str, name: str) -> None:
+        """Вставляет нового работодателя в таблицу 'employers'."""
+        with self.connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO employers (hh_id, name) VALUES (%s, %s) ON CONFLICT (hh_id) DO NOTHING",
+                (hh_id, name)
+            )
+
+    def insert_vacancy(self, employer_id: int, title: str, salary_low: int, salary_high: int, link: str) -> None:
+        """Вставляет новую вакансию в таблицу 'vacancies'."""
+        with self.connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO vacancies (employer_id, title, salary_low, salary_high, link) VALUES (%s, %s, %s, %s, %s)",
+                (employer_id, title, salary_low, salary_high, link)
+            )
 
     def get_companies_and_vacancies_count(self) -> List[Tuple[str, int]]:
         """Получает список всех компаний и количество вакансий у каждой компании."""

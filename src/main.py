@@ -4,7 +4,7 @@ from api_manager import APIManager
 from db_manager import DBManager
 from vacancy_manager import VacancyManager
 
-# Загружаем переменные окружения из файла .env
+# Загружаем переменные окружения из .env файла
 load_dotenv()
 
 def main():
@@ -15,6 +15,8 @@ def main():
         'host': os.getenv('DB_HOST'),
         'port': os.getenv('DB_PORT')
     }
+
+    print(db_config)  # Для диагностики
 
     db_manager = DBManager(db_config)
 
@@ -27,18 +29,18 @@ def main():
     api_manager = APIManager()
     vacancy_manager = VacancyManager(api_manager, db_manager)
 
-    # Пример интересных компаний
+    # Здесь список интересных компаний с актуальными ID
     employers_list = [
-        {"name": "Компания A", "id": "123456"},
-        {"name": "Компания B", "id": "234567"},
-        {"name": "Компания C", "id": "345678"},
-        {"name": "Компания D", "id": "456789"},
-        {"name": "Компания E", "id": "567890"},
-        {"name": "Компания F", "id": "678901"},
-        {"name": "Компания G", "id": "789012"},
-        {"name": "Компания H", "id": "890123"},
-        {"name": "Компания I", "id": "901234"},
-        {"name": "Компания J", "id": "012345"},
+        {"name": "Яндекс", "id": "1740"},
+        {"name": "Сбер", "id": "3529"},
+        {"name": "Т-Банк", "id": "178638"},
+        {"name": "Рускон", "id": "1068805"},
+        {"name": "Пятерочка", "id": "1942330"},
+        {"name": "Азбука вкуса", "id": "2120"},
+        {"name": "Северсталь", "id": "6041"},
+        {"name": "Адвирос", "id": "2765"},
+        {"name": "ООО PepsiCo", "id": "581458"},
+        {"name": "DPD в России", "id": "399"}
     ]
 
     # Заполнение базы данных
