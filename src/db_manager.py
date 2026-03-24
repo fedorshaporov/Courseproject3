@@ -33,21 +33,21 @@ class DBManager:
         """Создает необходимые таблицы в базе данных."""
         with self.connection.cursor() as cursor:
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS employers (
-                    id SERIAL PRIMARY KEY,
-                    hh_id VARCHAR(100) NOT NULL UNIQUE,
-                    name VARCHAR(255) NOT NULL
-                );
+            CREATE TABLE IF NOT EXISTS employers (
+                id SERIAL PRIMARY KEY,
+                hh_id VARCHAR(100) NOT NULL UNIQUE,
+                name VARCHAR(255) NOT NULL
+            );
             """)
             cursor.execute("""
-                CREATE TABLE IF NOT EXISTS vacancies (
-                    id SERIAL PRIMARY KEY,
-                    employer_id INT REFERENCES employers(id),
-                    title VARCHAR(255) NOT NULL,
-                    salary_low INT,
-                    salary_high INT,
-                    link VARCHAR(255) NOT NULL
-                );
+            CREATE TABLE IF NOT EXISTS vacancies (
+                id SERIAL PRIMARY KEY,
+                employer_id INT REFERENCES employers(id),
+                title VARCHAR(255) NOT NULL,
+                salary_low INT,
+                salary_high INT,
+                link VARCHAR(255) NOT NULL
+            );
             """)
             print("Tables created or already exist.")
         self.connection.commit()
@@ -56,10 +56,10 @@ class DBManager:
         """Получает список всех компаний и количество вакансий у каждой компании."""
         with self.connection.cursor() as cursor:
             cursor.execute("""
-                SELECT e.name, COUNT(v.id) 
-                FROM employers e
-                LEFT JOIN vacancies v ON e.id = v.employer_id 
-                GROUP BY e.name
+            SELECT e.name, COUNT(v.id) 
+            FROM employers e
+            LEFT JOIN vacancies v ON e.id = v.employer_id 
+            GROUP BY e.name;
             """)
             return cursor.fetchall()
 
@@ -67,16 +67,16 @@ class DBManager:
         """Получает список всех вакансий с указанием названия компании, названия вакансии, зарплаты и ссылки на вакансию."""
         with self.connection.cursor() as cursor:
             cursor.execute("""
-                SELECT e.name, v.title, v.salary_low, v.salary_high, v.link 
-                FROM vacancies v 
-                JOIN employers e ON v.employer_id = e.id
+            SELECT e.name, v.title, v.salary_low, v.salary_high, v.link 
+            FROM vacancies v 
+            JOIN employers e ON v.employer_id = e.id;
             """)
             return cursor.fetchall()
 
     def get_avg_salary(self) -> float:
         """Получает среднюю зарплату по вакансиям."""
         with self.connection.cursor() as cursor:
-            cursor.execute("SELECT AVG((salary_low + salary_high) / 2) FROM vacancies")
+            cursor.execute("SELECT AVG((salary_low + salary_high) / 2) FROM vacancies;")
             return cursor.fetchone()[0]
 
     def get_vacancies_with_higher_salary(self) -> List[Tuple[str, str, int, int]]:
@@ -84,10 +84,10 @@ class DBManager:
         avg_salary = self.get_avg_salary()
         with self.connection.cursor() as cursor:
             cursor.execute("""
-                SELECT e.name, v.title, v.salary_low, v.salary_high 
-                FROM vacancies v 
-                JOIN employers e ON v.employer_id = e.id 
-                WHERE (salary_low + salary_high) / 2 > %s
+            SELECT e.name, v.title, v.salary_low, v.salary_high 
+            FROM vacancies v 
+            JOIN employers e ON v.employer_id = e.id 
+            WHERE (salary_low + salary_high) / 2 > %s;
             """, (avg_salary,))
             return cursor.fetchall()
 
@@ -96,10 +96,10 @@ class DBManager:
         with self.connection.cursor() as cursor:
             query = f"%{keyword}%"
             cursor.execute("""
-                SELECT e.name, v.title, v.salary_low, v.salary_high 
-                FROM vacancies v 
-                JOIN employers e ON v.employer_id = e.id 
-                WHERE v.title ILIKE %s
+            SELECT e.name, v.title, v.salary_low, v.salary_high 
+            FROM vacancies v 
+            JOIN employers e ON v.employer_id = e.id 
+            WHERE v.title ILIKE %s;
             """, (query,))
             return cursor.fetchall()
 

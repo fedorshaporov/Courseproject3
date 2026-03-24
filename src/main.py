@@ -1,19 +1,25 @@
+import os
+from dotenv import load_dotenv
 from api_manager import APIManager
 from db_manager import DBManager
 from vacancy_manager import VacancyManager
 
+# Загружаем переменные окружения из файла .env
+load_dotenv()
+
 def main():
     db_config = {
-        'dbname': 'databaseHH',
-        'password': '0608',
-        'host': 'localhost',
-        'port': '5432'
+        'dbname': os.getenv('DB_NAME'),
+        'user': os.getenv('DB_USER'),
+        'password': os.getenv('DB_PASSWORD'),
+        'host': os.getenv('DB_HOST'),
+        'port': os.getenv('DB_PORT')
     }
 
     db_manager = DBManager(db_config)
 
     # Создание базы данных
-    db_manager.create_database('databaseHH')  # Замените на ваше название БД
+    db_manager.create_database('databaseHH')
 
     # Создание таблиц
     db_manager.create_tables()
@@ -40,19 +46,19 @@ def main():
 
     # Получение данных
     companies_and_vacancies = db_manager.get_companies_and_vacancies_count()
-    print(companies_and_vacancies)
+    print("Компании и количество вакансий:", companies_and_vacancies)
 
     all_vacancies = db_manager.get_all_vacancies()
-    print(all_vacancies)
+    print("Все вакансии:", all_vacancies)
 
     avg_salary = db_manager.get_avg_salary()
-    print(f'Average Salary: {avg_salary}')
+    print(f'Средняя зарплата: {avg_salary}')
 
     higher_salary_vacancies = db_manager.get_vacancies_with_higher_salary()
-    print(higher_salary_vacancies)
+    print("Вакансии с зарплатой выше средней:", higher_salary_vacancies)
 
     keyword_vacancies = db_manager.get_vacancies_with_keyword("Python")
-    print(keyword_vacancies)
+    print("Вакансии по ключевому слову 'Python':", keyword_vacancies)
 
     db_manager.close()
 
